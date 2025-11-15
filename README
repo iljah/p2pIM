@@ -11,33 +11,25 @@ Usage
 
 Print message with payload `hello world` using generate1.py:
 
-```bash
 $ ./generate1.py "hello world"
 ["0","20251109124254","aaaaaaaaaa","b94d27b9934d","hello world"]
-```
 
 Start server1.py in one tab:
 
-```bash
 ./server1.py
-```
 
 and send it message(s) in another tab using generate1.py and socat:
 
-```bash
 $ ./generate1.py test1 | tr -d \\n | socat - TCP:localhost:8765
 ok
 $ ./generate1.py test2 | tr -d \\n | socat - TCP:localhost:8765
 ok
-```
 
 Query messages from server1.py with control message __message__:
 
-```bash
 $ ./generate1.py __messages__ | tr -d \\n | socat - TCP:localhost:8765
 ["0","20251109105926","aaaaaaaaaa","1b4f0e985197","test1"]
 ["0","20251109105930","aaaaaaaaaa","60303ae22b99","test2"]
-```
 
 See `./generate1.py --help` for options.
 
@@ -47,17 +39,13 @@ Transferring messages between servers
 
 Start another server1.py on port 8764:
 
-```bash
 ./server1.py --port 8764
-```
 
 and send it all messages from first server running on port 8765:
 
-```bash
 $ for m in $(./generate1.py  __messages__ | tr -d \\n | socat - TCP:localhost:8765); do echo $m | tr -d \\n | socat - TCP:localhost:8764; done
 ok
 ok
-```
 
 
 Implementation / specification
