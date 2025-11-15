@@ -1,0 +1,19 @@
+TESTS += \
+  tests/server1_tests1_1.ok \
+
+CLEAN += \
+  tests/server1_tests1_1.tst \
+
+
+tests/server1_tests1_1.tst: socat.ok server1.ok tests/server1_tests1
+	@echo -n print $@"...  "
+	@./server1.py --current-time 20000101000000 --port 10001 &
+	@sleep 1s && ./generate1.py --current-time 20000101000000 --message-time 20000101000000 test1 | tr -d \\n | socat - TCP:localhost:10001 > /dev/null
+	@./generate1.py --current-time 20000101000000 --message-time 20000101000000 test2 | tr -d \\n | socat - TCP:localhost:10001 > /dev/null
+	@./generate1.py --current-time 20000101000000 --message-time 20000101000000 test3 | tr -d \\n | socat - TCP:localhost:10001 > /dev/null
+	@./generate1.py --current-time 20000101000000 --message-time 20000101000000 test4 | tr -d \\n | socat - TCP:localhost:10001 > /dev/null
+	@./generate1.py --current-time 20000101000000 --message-time 20000101000000 __messages__ | tr -d \\n | socat - TCP:localhost:10001 > $@
+	@./generate1.py --current-time 20000101000000 --message-time 20000101000000 __exit__ | tr -d \\n | socat - TCP:localhost:10001 > /dev/null
+	@echo ok
+tests/server1_tests1_1.ok: tests/server1_tests1_1.tst tests/server1_tests1
+	@echo -n diff $<"...  " && diff -q tests/server1_tests1_1.ref $< && touch $@ && echo ok

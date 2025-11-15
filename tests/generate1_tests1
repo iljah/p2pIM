@@ -1,0 +1,51 @@
+TESTS += \
+  tests/generate1_tests1_1.ok \
+  tests/generate1_tests1_2.ok \
+  tests/generate1_tests1_3.ok \
+  tests/generate1_tests1_4.ok \
+  tests/generate1_tests1_5.ok \
+  tests/generate1_tests1_6.ok \
+
+CLEAN += \
+  tests/generate1_tests1_1.tst \
+  tests/generate1_tests1_2.tst \
+  tests/generate1_tests1_3.tst \
+  tests/generate1_tests1_4.tst \
+  tests/generate1_tests1_5.tst \
+  tests/generate1_tests1_6.tst \
+
+
+tests/generate1_tests1_1.tst: generate1.ok tests/generate1_tests1
+	@echo -n print $@"...  " && ./generate1.py --debug --current-time 20000101000000 --message-time 20000101000000 test1 > $@ && echo ok
+tests/generate1_tests1_1.ok: tests/generate1_tests1_1.tst tests/generate1_tests1
+	@echo -n diff $<"...  " && diff -q tests/generate1_tests1_1.ref $< && touch $@ && echo ok
+
+
+# +10 s to current time should give same as above...
+tests/generate1_tests1_2.tst: generate1.ok tests/generate1_tests1
+	@echo -n print $@"...  " && ./generate1.py --debug --current-time 20000101000010 --message-time 20000101000000 test1 > $@ && echo ok
+tests/generate1_tests1_2.ok: tests/generate1_tests1_2.tst tests/generate1_tests1
+	@echo -n diff $<"...  " && diff -q tests/generate1_tests1_1.ref $< && touch $@ && echo ok
+
+# ...but not +11 s
+tests/generate1_tests1_3.tst: generate1.ok tests/generate1_tests1
+	@echo -n print $@"...  " && ./generate1.py --debug --current-time 20000101000011 --message-time 20000101000000 test1 > $@ && echo ok
+tests/generate1_tests1_3.ok: tests/generate1_tests1_3.tst tests/generate1_tests1
+	@echo -n diff $<"...  " && diff -q tests/generate1_tests1_3.ref $< && touch $@ && echo ok
+
+
+# duration 1..10 should be same as without...
+tests/generate1_tests1_4.tst: generate1.ok tests/generate1_tests1
+	@echo -n print $@"...  " && ./generate1.py --debug --current-time 20000101000000 --message-time 20000101000000 --duration 1 test1 > $@ && echo ok
+tests/generate1_tests1_4.ok: tests/generate1_tests1_4.tst tests/generate1_tests1
+	@echo -n diff $<"...  " && diff -q tests/generate1_tests1_1.ref $< && touch $@ && echo ok
+tests/generate1_tests1_5.tst: generate1.ok tests/generate1_tests1
+	@echo -n print $@"...  " && ./generate1.py --debug --current-time 20000101000000 --message-time 20000101000000 --duration 10 test1 > $@ && echo ok
+tests/generate1_tests1_5.ok: tests/generate1_tests1_5.tst tests/generate1_tests1
+	@echo -n diff $<"...  " && diff -q tests/generate1_tests1_1.ref $< && touch $@ && echo ok
+
+# ...but duration 11 should give better pow
+tests/generate1_tests1_6.tst: generate1.ok tests/generate1_tests1
+	@echo -n print $@"...  " && ./generate1.py --debug --current-time 20000101000000 --message-time 20000101000000 --duration 11 test1 > $@ && echo ok
+tests/generate1_tests1_6.ok: tests/generate1_tests1_6.tst tests/generate1_tests1
+	@echo -n diff $<"...  " && diff -q tests/generate1_tests1_6.ref $< && touch $@ && echo ok
