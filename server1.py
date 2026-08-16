@@ -2,7 +2,7 @@
 '''
 Sends and receives p2pIM messages over TCP, keeps them in memory.
 
-Copyright 2025 Ilja Honkonen
+Copyright 2025, 2026 Ilja Honkonen
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
