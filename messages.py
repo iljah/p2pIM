@@ -157,9 +157,9 @@ class Message_v0:
 			return 'Message too short: ' + str(len(s)) + '<'+str(self.overhead_bytes) + '\n'
 
 		if not s.startswith('["0","'):
-			return 'Wrong format/version\n'
+			return r'''Message doesn't start with ["0","''' + '\n'
 		if not s.endswith('"]'):
-			return 'Wrong format/payload\n'
+			return r'''Message doesn't end with "]''' + '\n'
 
 		# valid datetime
 		d_start = 5+self.version_bytes
@@ -168,12 +168,14 @@ class Message_v0:
 		try:
 			_ = int(timestamp_str)
 		except:
-			return 'Wrong format/datetime\n'
+			return 'Timestamp not in YYYYMMDDhhmmss format\n'
 
 		if utc_now == None:
 			utc_now = datetime.now(timezone.utc)
-		if timestamp_str > utc_now.strftime('%Y%m%d%H%M%S'):
-			return 'Datetime in future\n'
+		# atm no need to parse received timestamp
+		utc_now_str = utc_now.strftime('%Y%m%d%H%M%S')
+		if timestamp_str > utc_now_str or timestamp < '19991231235959':
+			return 'Timestamp too large or small in YYYYMMDDhhmmss format\n'
 
 		n_start = 3 + d_end
 		n_end = n_start + self.nonce_bytes
@@ -192,7 +194,7 @@ class Message_v0:
 			timestamp_obj = datetime.strptime(
 				timestamp_str, '%Y%m%d%H%M%S').replace(tzinfo = timezone.utc)
 		except:
-			return 'Wrong format/datetime\n'
+			return 'Timestamp not in YYYYMMDDhhmmss format\n'
 
 		p_start = 3 + c_end
 		payload = s[p_start:-2]
