@@ -14,15 +14,16 @@ Start first server with
 $ ./server2.py --ui-addr 127.0.1.0 --comm-addr 127.0.1.0
 
 and open http://127.0.1.0:8000 in your browser. Type something
-and press enter to send a message. After about 10 s you should
-see its proof of work increase (lower is better). You can change
-PoW update interval with --update-pow. If you send 3 or 4 more
-messages, one(s) with largest PoW should disappear. You can
-change how much memory is available for message with --mem. If
-you keep sending more messages, their nonces should increase
-from aaaaaaaaaa to give better PoW so that they replace existing
-messages. Or you can wait for PoW of previous messages to decay
-so that worse PoW is sufficient for new messages to be accepted.
+and press enter to send a message. After (refreshing the page
+in) about 10 s you should see its proof of work increase (lower
+is better). You can change PoW update interval with --update-pow.
+If you send 3 or 4 more messages, one(s) with largest PoW should
+disappear. You can change how much memory is available for
+messages with --mem. If you keep sending more messages, their
+nonces should increase from aaaaaaaaaa to give better PoW so that
+they replace existing messages. Or you can wait for PoW of
+previous messages to decay so that worse PoW is sufficient for
+new messages to be accepted.
 
 
 Start second server with
