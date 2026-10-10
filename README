@@ -1,12 +1,73 @@
 p2pIM
 =====
 
-Peer-to-peer Internet messaging system using proof-of-work (PoW)
-for spam protection. Larger messages require larger PoW and it
+Peer-to-peer instant messaging system using proof-of-work (PoW)
+for spam protection. Larger messages require better PoW and it
 decays with time, making room for new messages.
 
 
-Usage
+Prototype server 2 usage
+--------------
+
+Start first server with
+
+$ ./server2.py --ui-addr 127.0.1.0 --comm-addr 127.0.1.0
+
+and open http://127.0.1.0:8000 in your browser. Type something
+and press enter to send a message. After about 10 s you should
+see its proof of work increase (lower is better). You can change
+PoW update interval with --update-pow. If you send 3 or 4 more
+messages, one(s) with largest PoW should disappear. You can
+change how much memory is available for message with --mem. If
+you keep sending more messages, their nonces should increase
+from aaaaaaaaaa to give better PoW so that they replace existing
+messages. Or you can wait for PoW of previous messages to decay
+so that worse PoW is sufficient for new messages to be accepted.
+
+
+Start second server with
+
+$ ./server2.py --ui-addr 127.0.2.0 --comm-addr 127.0.2.0
+
+and open http://127.0.2.0:8000 in your browser. Add first
+server's communication URL (http://127.0.1.0:6000) to peer list
+of second server and refresh after few seconds to see messages
+of first server transferred to second one. You can change
+polling interval of peers with --peer-interval.
+
+
+You can also use curl to communicate with servers on their
+communication port:
+
+$ curl http://127.0.2.0:6000/peers
+http://127.0.1.0:6000
+
+$ curl http://127.0.2.0:6000/ids
+20790578
+9615130
+70494565
+17993413
+
+$ curl http://127.0.2.0:6000/get/70494565
+["0","20261010082449","aaaaaaaaaa","ab530a13e459","message"]
+
+Wire format is described in class Message_v0 of messages.py.
+You can use generate1.py to generate messages in correct
+format:
+
+$ curl http://127.0.2.0:6000/put/$(urlencode \
+    $(./generate1.py "another message"))
+Required PoW: 0x00235572
+
+In case of error (!= ok), try with better (smaller) PoW:
+
+$ curl http://127.0.2.0:6000/put/$(urlencode \
+    $(./generate1.py "another message" --pow 10000))
+ok
+
+
+
+Prototype server 1 usage
 -----
 
 Print message with payload `hello world` using generate1.py:
@@ -34,7 +95,7 @@ $ ./generate1.py __messages__ | tr -d \\n | socat - TCP:localhost:8765
 See `./generate1.py --help` for options.
 
 
-Transferring messages between servers
+Transferring messages between server 1s
 -------------------------------------
 
 Start another server1.py on port 8764:

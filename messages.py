@@ -54,6 +54,7 @@ class Message_v0:
 	nonce_bytes = 10
 	checksum_bytes = 12 # hex
 	pow_bytes = 8 # hex
+	worst_pow = 2**(4*pow_bytes) - 1
 	pow_target = 2**(8*pow_bytes//2) - 1 # hex / 2
 	# message size with 0 byte payload
 	overhead_bytes = format_bytes + timestamp_bytes \
@@ -94,6 +95,9 @@ class Message_v0:
 			self.timestamp_str, self.nonce, self.checksum, self.payload)
 	def __repr__(self): return self.__str__()
 
+	def __len__(self):
+		return self.overhead_bytes + len(self.payload)
+
 	# decreases message's proof of work significantly
 	def set_timestamp(self, utc_now: datetime = None):
 		if utc_now == None:
@@ -116,7 +120,7 @@ class Message_v0:
 	# returns number of tries to get required_pow or better
 	def update_nonce(self, required_pow = -1, utc_now = None):
 		if required_pow < 0:
-			required_pow = 2**(4*self.pow_bytes) - 1
+			required_pow = self.worst_pow
 		self.initial_pow = None
 		self.current_pow = None
 		tries = 0
@@ -127,7 +131,7 @@ class Message_v0:
 				candidate += c
 			initial_pow = Message_v0.get_initial_pow(
 				self.timestamp_str, candidate, self.checksum, self.pow_target)
-			if initial_pow < required_pow:
+			if initial_pow <= required_pow:
 				self.nonce = candidate
 				self.initial_pow = initial_pow
 				break
@@ -153,13 +157,17 @@ class Message_v0:
 	Returns error as string or '' on success.
 	'''
 	def parse(self, s, required_pow, utc_now = None):
+		if len(s) > self.max_message_bytes:
+			return 'Message is {:d} bytes but maximum is {:d}\n' \
+				.format(len(s), self.max_message_bytes)
 		if len(s) < self.overhead_bytes:
-			return 'Message too short: ' + str(len(s)) + '<'+str(self.overhead_bytes) + '\n'
+			return 'Message is {:d} bytes but minimum is {:d}\n' \
+				.format(len(s), self.overhead_bytes)
 
 		if not s.startswith('["0","'):
-			return r'''Message doesn't start with ["0","''' + '\n'
+			return 'Wrong format/version\n'
 		if not s.endswith('"]'):
-			return r'''Message doesn't end with "]''' + '\n'
+			return 'Wrong format/payload\n'
 
 		# valid datetime
 		d_start = 5+self.version_bytes
@@ -168,14 +176,12 @@ class Message_v0:
 		try:
 			_ = int(timestamp_str)
 		except:
-			return 'Timestamp not in YYYYMMDDhhmmss format\n'
+			return 'Wrong format/datetime\n'
 
 		if utc_now == None:
 			utc_now = datetime.now(timezone.utc)
-		# atm no need to parse received timestamp
-		utc_now_str = utc_now.strftime('%Y%m%d%H%M%S')
-		if timestamp_str > utc_now_str or timestamp < '19991231235959':
-			return 'Timestamp too large or small in YYYYMMDDhhmmss format\n'
+		if timestamp_str > utc_now.strftime('%Y%m%d%H%M%S'):
+			return 'Datetime in future\n'
 
 		n_start = 3 + d_end
 		n_end = n_start + self.nonce_bytes
@@ -194,7 +200,7 @@ class Message_v0:
 			timestamp_obj = datetime.strptime(
 				timestamp_str, '%Y%m%d%H%M%S').replace(tzinfo = timezone.utc)
 		except:
-			return 'Timestamp not in YYYYMMDDhhmmss format\n'
+			return 'Wrong format/datetime\n'
 
 		p_start = 3 + c_end
 		payload = s[p_start:-2]
@@ -221,7 +227,7 @@ class Message_v0:
 
 
 if __name__ == '__main__':
-	timestamp = datetime(2000, 1, 2, 3, 4, 5)
+	timestamp = datetime(2000, 1, 2, 3, 4, 5, tzinfo = timezone.utc)
 	m = Message_v0()
 	print('# message v0:      ', end = '')
 	print('[version,timestamp   ,   nonce', end = '')

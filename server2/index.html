@@ -1,0 +1,35 @@
+<!DOCTYPE html><html>
+<head><meta charset="UTF-8"><title>p2pIM</title></head>
+<body><h1>p2pIM</h1>
+<h2>Messages</h2>
+<p><form method="post">
+	<input maxlength="{{ maxlength }}" type="text" name="send" required autofocus>
+	<button type="submit">Send</button>
+</form></p>
+<p><table border="1" style="border: 1px solid black; border-collapse: collapse">
+<tr>
+	<th><a href="{{ request.path }}?sort=timestamp">Timestamp</a></th>
+	<th><a href="{{ request.path }}?sort=nonce">Nonce</a></th>
+	<th><a href="{{ request.path }}?sort=checksum">Checksum</a></th>
+	<th><a href="{{ request.path }}?sort=pow">Proof of work</a></th>
+	<th><a href="{{ request.path }}?sort=payload">Payload</a></th></tr>
+{% for message in messages %}
+<tr>
+	<td>{{ message.timestamp }}</td>
+	<td>{{ message.nonce }}</td>
+	<td>{{ message.checksum }}</td>
+	<td style="text-align: end">{{ message.pow }}</td>
+	<td>{{ message.payload }}</td></tr>
+{% endfor %}
+</table></p>
+<h2>Peers</h2>
+<p><form method="post">
+	<input type="text" name="add" required>
+	<button type="submit">Add</button>
+</form></p>
+<p><table border="1" style="border: 1px solid black; border-collapse: collapse">
+<tr><th>Next attempt</th><th>URL</th></tr>
+{% for peer in peers %}
+<tr><td style="text-align: end">{{ peer.next_attempt }}</td><td>{{ peer.url }}</td></tr>
+{% endfor %}
+</table></p></body></html>

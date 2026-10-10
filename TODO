@@ -1,0 +1,38 @@
+Major todo item(s)
+==================
+
+Support for independent channels/namespaces/etc
+-----------------------------------------------
+
+Version 0 messages calculate PoW as
+"sha256 of timestamp+nonce+checksum" and mix all
+messages together even if servers have different
+PoW targets. Add 4th item to PoW calculation of
+version 1 messages with fixed length of 16 bytes
+representing channel name, for example.
+
+Channels could also be treated as a hierarchy
+where server memory limit(s) can be defined
+separately for individual channels as well as
+particular groups of them, based on their name
+for example:
+news         - 1.0 MB
+news:europe  - 0.1 MB
+news:america - 0.1 MB
+...
+
+
+Remove support for diffrent PoW targets?
+----------------------------------------
+
+Version 0 messages define PoW as "|T - H| * S * A",
+where PoW target T allows some separation between
+messages/servers. Custom target probably not
+necessary, especially with channels. Default target
+could be set to ffff... with larger sha256 = better.
+
+
+Minor/other todo item(s)
+------------------------
+
+grep -r TODO .

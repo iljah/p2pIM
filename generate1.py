@@ -35,7 +35,7 @@ if __name__ == '__main__':
 		formatter_class = ArgumentDefaultsHelpFormatter
 	)
 	parser.add_argument('message', type = str, metavar = 'M',
-		nargs = '*', default = ['__info__'], help = 'Print message M.')
+		nargs = '*', default = ['__info__'], help = 'Print message(s) M.')
 	parser.add_argument('--current-time', metavar = 'N', type = str,
 		default = None, help = 'Pretend that current UTC time'
 		+ ' is N (YYYYMMDDhhmmss).')
